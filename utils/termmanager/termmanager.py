@@ -1,0 +1,57 @@
+"""
+Handles the management of the terminal functionality
+"""
+
+from subprocess import Popen
+from subprocess import CalledProcessError
+from subprocess import PIPE
+from contextlib import contextmanager
+
+
+class TermManager:
+    """
+    Interfaces with terminal process
+    """
+
+    process: Popen
+    command: str
+
+    def __init__(self, command: str = None):
+        if command is not None:
+            self.start_process(command)
+
+    def stop_process(self):
+        try:
+            self.process.stdin.close()
+            self.process.wait()
+
+            return 0
+        except:
+            return 1
+
+    def start_process(self, command: str):
+        """
+        starts the process and raises exception in case of failure
+        """
+        try:
+            self.process = Popen(
+                command,
+                stdin=PIPE,
+                shell=True,
+                text=True,
+            )
+
+        except CalledProcessError as called_process_error:
+            raise called_process_error
+
+    def send(self, command: str):
+        """
+        Send input to the process
+        """
+        try:
+            self.process.stdin.write(f"{command}\n")
+            self.process.stdin.flush()
+
+            return 0
+        except:
+            return 1
