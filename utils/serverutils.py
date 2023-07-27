@@ -14,7 +14,7 @@ class ServerManager:
     def __init__(self):
         self.term_manager = TermManager()
         self.files_manager = FilesManager()
-        pass
+        self.is_server_running: bool = False
 
     def start_server(self):
         try:
@@ -22,14 +22,20 @@ class ServerManager:
                 self.term_manager.send("sh bedrock-server/start_server.sh")
             else:
                 self.term_manager.start_process("sh bedrock-server/start_server.sh")
+
+            self.is_server_running = True
             return 0
         except:
+            self.start_server()
             return 1
 
     def stop_server(self):
         try:
             self.term_manager.send("stop")
             self.term_manager.stop_process()
+
+            self.is_server_running = False
+
             return 0
         except:
             return 1
@@ -57,6 +63,10 @@ class ServerManager:
 
         print(f"clean res = {clean_res}, transfer res = {transfer_res}")
 
+    def apply_persistence(self):
+        persistent_dir = "persistent"
+        self.files_manager.transfer_contents(f"{persistent_dir}", "bedrock-server")
+
     def update_settings(self, settings: list):
         """
         overwrites settings file with the
@@ -68,4 +78,5 @@ class ServerManager:
     def update_server(self):
         self.stop_server()
         self.install_server()
+        self.apply_persistence()
         self.start_server()
