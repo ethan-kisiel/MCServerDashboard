@@ -98,3 +98,12 @@ class FilesManager:
 
         except:
             return 1
+
+    def get_folders(self, src: str):
+        """
+        return the strings of folders in src directory
+        """
+        try:
+            return [folder for folder in os.listdir(src) if "." not in folder]
+        except:
+            return []

@@ -1,3 +1,5 @@
+# cd bedrock-server
+# chmod +x bedrock_server
 # LD_LIBRARY_PATH=. ./bedrock_server
 
 while true; do

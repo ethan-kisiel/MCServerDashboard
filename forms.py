@@ -1,7 +1,7 @@
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import FlaskForm, CSRFProtect
-from wtforms import StringField, SubmitField
+from wtforms import StringField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length
 
 
@@ -31,3 +31,11 @@ class SendCommandForm(FlaskForm):
 class UpdateServerForm(FlaskForm):
     submit_route = "/update-server"
     update_server_btn = SubmitField("Update Server")
+
+
+class ChangeLevelForm(FlaskForm):
+    submit_route = "/"
+    save_level_btn = SubmitField("Save")
+    selected_level_field = SelectField(
+        "Choose an option", choices=[("default", "default")]
+    )

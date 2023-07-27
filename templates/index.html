@@ -177,6 +177,35 @@
         background-color: #cccccc; /* Light gray background color */
         cursor: not-allowed; /* Change cursor to "not-allowed" when disabled */
         }
+
+        /* Style for the dropdown (selected_level_field) */
+        #selected_level_field {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #fff;
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        /* Style for the "Save" button */
+        #save_level_btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        #save_level_btn:hover {
+            background-color: #45a049;
+        }
     </style>
 
     <div>
@@ -246,6 +275,20 @@
               </div>
           </div>
 
+
+          <div class="row">
+            <div class="col">
+                <form method="post", action="/change-level">
+                    {{ forms["level_form"].csrf_token }}
+                    {{ forms["level_form"].selected_level_field() }}
+                    {{ forms["level_form"].save_level_btn() }}
+                </form>
+            </div>
+              <div class="col">
+              </div>
+              <div class="col">
+              </div>
+          </div>
 
     </div>
 </body>

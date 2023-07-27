@@ -12,12 +12,23 @@ app.secret_key = token_urlsafe(16)
 
 @app.route("/")
 def index():
+    server_manager.apply_properties()
     start_server_form = StartServerForm()
     stop_server_form = StopServerForm()
     restart_server_form = RestartServerForm()
 
     send_command_form = SendCommandForm()
     update_server_form = UpdateServerForm()
+
+    levels = server_manager.get_levels()
+    current = server_manager.get_current_level()
+    print(current)
+    change_level_form = ChangeLevelForm()
+    change_level_form.selected_level_field.choices = [
+        (level, level) for level in levels
+    ]
+    change_level_form.selected_level_field.default = current
+    change_level_form.selected_level_field.data = current
 
     if server_manager.is_server_running:
         start_server_form.start_server_btn.render_kw = {"disabled": "disabled"}
@@ -31,6 +42,7 @@ def index():
         "restart_form": restart_server_form,
         "command_form": send_command_form,
         "update_form": update_server_form,
+        "level_form": change_level_form,
     }
 
     return render_template("index.html", forms=forms, server_manager=server_manager)
@@ -65,6 +77,21 @@ def send_command():
     form = SendCommandForm()
     if form.validate_on_submit():
         server_manager.term_manager.send(form.command_field.data)
+
+    return redirect("/")
+
+
+@app.route("/change-level", methods=["POST"])
+def change_level():
+    levels = server_manager.get_levels()
+    current = server_manager.get_current_level()
+    form = ChangeLevelForm()
+    form.selected_level_field.choices = [(level, level) for level in levels]
+
+    if form.validate_on_submit():
+        server_manager.stop_server()
+        server_manager.set_level(form.selected_level_field.data)
+        server_manager.start_server()
 
     return redirect("/")
 

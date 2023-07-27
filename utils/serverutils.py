@@ -15,13 +15,15 @@ class ServerManager:
         self.term_manager = TermManager()
         self.files_manager = FilesManager()
         self.is_server_running: bool = False
+        self.server_properties = {}
+        self.get_properties()
 
     def start_server(self):
         try:
             if self.term_manager.is_term_active:
-                self.term_manager.send("sh bedrock-server/start_server.sh")
+                self.term_manager.send("sh start_server.sh")
             else:
-                self.term_manager.start_process("sh bedrock-server/start_server.sh")
+                self.term_manager.start_process("sh start_server.sh")
 
             self.is_server_running = True
             return 0
@@ -43,7 +45,7 @@ class ServerManager:
     def restart_server(self):
         self.term_manager.send("stop")
         self.term_manager.stop_process()
-        self.term_manager.start_process("sh bedrock-server/start_server.sh")
+        self.term_manager.start_process("sh start_server.sh")
 
     def install_server(self):
         """
@@ -80,3 +82,49 @@ class ServerManager:
         self.install_server()
         self.apply_persistence()
         self.start_server()
+
+    def get_properties(self):
+        """
+        Retrieve and return properties if available
+        """
+        server_properties = {}
+        try:
+            with open("bedrock-server/server.properties", "r") as server_props:
+                for line in server_props.readlines():
+                    if "=" in line:
+                        clean_line = line.strip().strip("\n").split("=")
+                        server_properties[clean_line[0]] = clean_line[1]
+
+            self.server_properties = server_properties
+            return 0
+
+        except Exception as e:
+            print(e)
+            return 1
+
+    def apply_properties(self):
+        """
+        Apply properties to server.properties
+        """
+        try:
+            with open("bedrock-server/server.properties", "w") as server_properties:
+                for key in self.server_properties.keys():
+                    server_properties.write(f"{key}={self.server_properties[key]}\n")
+            return 0
+
+        except Exception as e:
+            print(e)
+            return 1
+
+    def set_level(self, level_name: str):
+        """
+        Sets the world_name property locally, then applies changes
+        """
+        self.server_properties["level-name"] = level_name
+        self.apply_properties()
+
+    def get_levels(self):
+        return self.files_manager.get_folders("bedrock-server/worlds")
+
+    def get_current_level(self):
+        return self.server_properties["level-name"]
