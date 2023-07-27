@@ -15,15 +15,20 @@ class TermManager:
 
     process: Popen
     command: str
+    is_term_active: bool
 
     def __init__(self, command: str = None):
         if command is not None:
             self.start_process(command)
+            self.is_term_active = True
+        else:
+            self.is_term_active = False
 
     def stop_process(self):
         try:
             self.process.stdin.close()
             self.process.wait()
+            self.is_term_active = False
 
             return 0
         except:
@@ -40,6 +45,7 @@ class TermManager:
                 shell=True,
                 text=True,
             )
+            self.is_term_active = True
 
         except CalledProcessError as called_process_error:
             raise called_process_error
