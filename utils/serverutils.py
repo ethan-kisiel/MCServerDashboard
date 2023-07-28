@@ -1,5 +1,6 @@
 from utils.filesmanager.filesmanager import FilesManager
 from utils.termmanager.termmanager import TermManager
+from time import time
 
 # Replace 'your_url_here' with the URL of the webpage you want to scrape
 url = "https://www.minecraft.net/en-us/download/server/bedrock"
@@ -8,6 +9,8 @@ url = "https://www.minecraft.net/en-us/download/server/bedrock"
 data_platform_value = "serverBedrockLinux"
 selector = f'a[data-platform="{data_platform_value}"]'
 # Set up the Selenium WebDriver (assuming you have it installed and the proper driver for your browser)
+
+MESSAGE_PREFIX = "title @a actionbar"
 
 
 class ServerManager:
@@ -43,6 +46,8 @@ class ServerManager:
             return 1
 
     def restart_server(self):
+        self.term_manager.send(f"{MESSAGE_PREFIX} Server is restarting...")
+        time.sleep(3)
         self.term_manager.send("stop")
         self.term_manager.stop_process()
         self.term_manager.start_process("sh start_server.sh")
@@ -78,6 +83,8 @@ class ServerManager:
             properties.writelines(settings)
 
     def update_server(self):
+        self.term_manager.send(f"{MESSAGE_PREFIX} Updating server...")
+        time.sleep(3)
         self.stop_server()
         self.install_server()
         self.apply_persistence()
@@ -120,8 +127,12 @@ class ServerManager:
         """
         Sets the world_name property locally, then applies changes
         """
+        self.term_manager.send(f"{MESSAGE_PREFIX} Server is changing levels...")
+        time.sleep(3)
+        self.stop_server()
         self.server_properties["level-name"] = level_name
         self.apply_properties()
+        self.start_server()
 
     def get_levels(self):
         return self.files_manager.get_folders("bedrock-server/worlds")

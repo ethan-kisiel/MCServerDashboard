@@ -89,9 +89,7 @@ def change_level():
     form.selected_level_field.choices = [(level, level) for level in levels]
 
     if form.validate_on_submit():
-        server_manager.stop_server()
         server_manager.set_level(form.selected_level_field.data)
-        server_manager.start_server()
 
     return redirect("/")
 
