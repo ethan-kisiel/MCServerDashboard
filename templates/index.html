@@ -7,6 +7,28 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
   </head>
 <body>
+    <script>
+        const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
+
+        async function updateServerStatus() {
+            let status = await fetch(window.location.origin + "/server-status");
+            console.log(window.location.origin + "/server-status");
+            if (status.ok)
+            {
+                let json = await status.json();
+                console.log(json);
+                if (json.status == "pending")
+                {
+                    window.location.reload();
+                    sleep(10000);
+                    updateServerStatus();
+                }
+            }
+        }
+
+        updateServerStatus();
+
+    </script>
     <style>
         body{
             background-color: rgb(21, 21, 27);
@@ -14,6 +36,16 @@
         div{
             color: antiquewhite;
         }
+
+        .row{
+            padding-bottom: 50px;
+        }
+
+        form{
+            padding-bottom: 10px;
+        }
+
+
 
 
         /* Style for the button with id "start_server_btn" */
@@ -107,15 +139,6 @@
 
 
 
-
-        .row{
-            padding-bottom: 25px;
-        }
-
-
-
-
-
         /* Style for the text field */
         #command_field {
         width: 60%; /* Set the width of the text field */
@@ -181,19 +204,19 @@
         /* Style for the dropdown (selected_level_field) */
         #selected_level_field {
             width: 100%;
-            padding: 10px;
+            padding: 5px;
             border: 1px solid #ccc;
-            border-radius: 5px;
+            border-radius: 4px;
             background-color: #fff;
             font-size: 16px;
             color: #333;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         /* Style for the "Save" button */
         #save_level_btn {
             width: 100%;
-            padding: 10px;
+            padding: 5px;
             background-color: #4CAF50;
             color: #fff;
             border: none;
@@ -201,17 +224,47 @@
             font-size: 16px;
             cursor: pointer;
             transition: background-color 0.2s;
+            margin-bottom: 10px;
         }
 
         #save_level_btn:hover {
             background-color: #45a049;
+        }
+
+
+
+
+        #zip_file_input {
+            /* Your styles for the zip_file_input element go here */
+            /* For example: */
+            border: 1px solid #ccc;
+            padding: 8px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        #file_upload_btn {
+            /* Your styles for the file_upload_btn element go here */
+            /* For example: */
+            background-color: #007bff;
+            color: white;
+            padding: 5px 10px;
+            width: 100%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
         }
     </style>
 
     <div>
         <p>
         Server Status:
-        {% if server_manager.is_server_running %}
+        {% if server_manager.is_server_busy %}
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="yellow" class="bi bi-circle-fill" viewBox="0 0 16 16">
+            <circle cx="8" cy="8" r="8"/>
+        </svg>
+        {% elif server_manager.is_server_running %}
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green" class="bi bi-circle-fill" viewBox="0 0 16 16">
                 <circle cx="8" cy="8" r="8"/>
             </svg>
@@ -233,19 +286,15 @@
                 {{ forms["start_form"].csrf_token }}
                 {{ forms["start_form"].start_server_btn() }}
             </form>
+            <form method="post", action="/stop-server">
+                {{ forms["stop_form"].csrf_token }}
+                {{ forms["stop_form"].stop_server_btn() }}
+            </form>
+            <form method="post", action="/restart-server">
+                {{ forms["restart_form"].csrf_token }}
+                {{ forms["restart_form"].restart_server_btn() }}
+            </form>
           </div>
-            <div class="col">
-                <form method="post", action="/stop-server">
-                    {{ forms["stop_form"].csrf_token }}
-                    {{ forms["stop_form"].stop_server_btn() }}
-                </form>
-            </div>
-            <div class="col">
-                <form method="post", action="/restart-server">
-                    {{ forms["restart_form"].csrf_token }}
-                    {{ forms["restart_form"].restart_server_btn() }}
-                </form>
-            </div>
         </div>
 
 
@@ -285,8 +334,11 @@
                 </form>
             </div>
               <div class="col">
-              </div>
-              <div class="col">
+                <form method="post", enctype="multipart/form-data", action="/upload-level">
+                    {{ forms["level_upload_form"].csrf_token }}
+                    {{ forms["level_upload_form"].zip_file_field() }}
+                    {{ forms["level_upload_form"].file_upload_btn() }}
+                </form>
               </div>
           </div>
 

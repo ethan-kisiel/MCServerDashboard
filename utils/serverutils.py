@@ -1,6 +1,6 @@
 from utils.filesmanager.filesmanager import FilesManager
 from utils.termmanager.termmanager import TermManager
-from time import time
+import time
 
 # Replace 'your_url_here' with the URL of the webpage you want to scrape
 url = "https://www.minecraft.net/en-us/download/server/bedrock"
@@ -18,6 +18,7 @@ class ServerManager:
         self.term_manager = TermManager()
         self.files_manager = FilesManager()
         self.is_server_running: bool = False
+        self.is_server_busy: bool = False
         self.server_properties = {}
         self.get_properties()
 
@@ -83,12 +84,14 @@ class ServerManager:
             properties.writelines(settings)
 
     def update_server(self):
+        self.is_server_busy = True
         self.term_manager.send(f"{MESSAGE_PREFIX} Updating server...")
         time.sleep(3)
         self.stop_server()
         self.install_server()
         self.apply_persistence()
         self.start_server()
+        self.is_server_busy = False
 
     def get_properties(self):
         """
@@ -139,3 +142,22 @@ class ServerManager:
 
     def get_current_level(self):
         return self.server_properties["level-name"]
+
+    def upload_level(self, file, filename: str):
+        try:
+            # with open(f"temp/{filename}", "wb") as zip_upload:
+            #     zip_upload.write(file.read())
+
+            file_name = filename.split(".zip")[0]
+
+            self.files_manager.unzip_file("temp", file_name, f"temp/{file_name}")
+
+            self.files_manager.transfer_folder(
+                f"temp/{file_name}", f"bedrock-server/worlds/{file_name}"
+            )
+
+            self.files_manager.clean_dir("temp")
+
+            return 0
+        except:
+            return 1

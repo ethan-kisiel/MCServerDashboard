@@ -1,8 +1,9 @@
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import FlaskForm, CSRFProtect
-from wtforms import StringField, SubmitField, SelectField
-from wtforms.validators import DataRequired, Length
+from wtforms import StringField, SubmitField, SelectField, FileField
+from wtforms.validators import ValidationError
+from werkzeug.utils import secure_filename
 
 
 class StartServerForm(FlaskForm):
@@ -39,3 +40,18 @@ class ChangeLevelForm(FlaskForm):
     selected_level_field = SelectField(
         "Choose an option", choices=[("default", "default")]
     )
+
+
+def allowed_file_extension(form, field):
+    if field.data:
+        filename = secure_filename(field.data.filename)
+        if not filename.lower().endswith(".zip"):
+            raise ValidationError("Only .zip files are allowed!")
+
+
+class LevelUploadForm(FlaskForm):
+    zip_file_field = FileField(
+        "Select a .zip file",
+        validators=[allowed_file_extension],
+    )
+    file_upload_btn = SubmitField("Upload")

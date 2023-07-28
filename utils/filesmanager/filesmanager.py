@@ -10,6 +10,14 @@ class FilesManager:
     def __init__(self):
         return
 
+    def transfer_folder(self, src: str, dst: str):
+        try:
+            shutil.copytree(src, dst)
+            return 0
+        except Exception as e:
+            print(e)
+            return 1
+
     def transfer_contents(self, src: str, dst: str):
         """
         will go through every item in the src directory and recursivly copy all of its contents to the
@@ -96,7 +104,8 @@ class FilesManager:
 
             return 0
 
-        except:
+        except Exception as e:
+            print(e)
             return 1
 
     def get_folders(self, src: str):
