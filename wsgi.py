@@ -44,7 +44,7 @@ def index():
         restart_server_form.restart_server_btn.render_kw = {"disabled": "disabled"}
         stop_server_form.stop_server_btn.render_kw = {"disabled": "disabled"}
         update_server_form.update_server_btn.render_kw = {"disabled": "disabled"}
-        send_command_form.send_command_button.render_kw = {"disabled": "disabled"}
+        send_command_form.send_command_btn.render_kw = {"disabled": "disabled"}
         change_level_form.save_level_btn.render_kw = {"disabled": "disabled"}
         level_upload_form.file_upload_btn.render_kw = {"disabled": "disabled"}
 

@@ -48,7 +48,7 @@ class ServerManager:
 
     def restart_server(self):
         self.term_manager.send(f"{MESSAGE_PREFIX} Server is restarting...")
-        time.sleep(3)
+        time.sleep(10)
         self.term_manager.send("stop")
         self.term_manager.stop_process()
         self.term_manager.start_process("sh start_server.sh")
@@ -86,7 +86,7 @@ class ServerManager:
     def update_server(self):
         self.is_server_busy = True
         self.term_manager.send(f"{MESSAGE_PREFIX} Updating server...")
-        time.sleep(3)
+        time.sleep(10)
         self.stop_server()
         self.install_server()
         self.apply_persistence()

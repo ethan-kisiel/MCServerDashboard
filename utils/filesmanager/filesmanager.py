@@ -89,7 +89,6 @@ class FilesManager:
         except:
             print("Element not found.")
             driver.quit()
-
             return 1
 
         # Close the browser when done
