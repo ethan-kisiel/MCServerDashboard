@@ -8,7 +8,10 @@
   </head>
 <body>
     <script>
-        var previous_status = ""
+        var previous_status = "";
+        var connected_players = [];
+        connected_players = {{ server_manager.connected_players }};
+
         const websocket = new WebSocket("ws://127.0.0.1:6942/");
         websocket.addEventListener("message", ({ data }) => {
             console.log(data);
@@ -30,6 +33,8 @@
                         {
                             document.getElementById("status-icon").setAttribute("fill", "green");
                         }
+
+
                         if (previous_status == "")
                         {
                             previous_status = event.server_status;
@@ -40,6 +45,12 @@
                             window.location.reload();
                         }
                         previous_status = event.server_status;
+
+                        if (connected_players !== event.connected_players && (connected_players.length != 0 && event.connected_players.length != 0))
+                        {
+                            console.log(event.connected_players);
+                            window.location.reload();
+                        }
             }
 
         // do something with event
@@ -378,7 +389,6 @@
               </div>
           </div>
 
-
           <div class="row">
             <div class="col">
                 <form method="post", action="/change-level">
@@ -397,11 +407,16 @@
           </div>
 
           <div class="row">
+            <div class="col">
+            <h3>Connected Players: </h3>
             <ul class="list-group">
                 {% for player in server_manager.connected_players %}
                     <li class="list-group-item">{{ player }}</li>
                 {% endfor %}
-              </ul>
+            </ul>
+            </div>
+            <div class="col"></div>
+            <div class="col"></div>
           </div>
 
     </div>

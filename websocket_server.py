@@ -1,6 +1,7 @@
 import asyncio
 import time
 import json
+import logging
 from websockets import serve
 from utils.serverutils import ServerManager
 
@@ -16,18 +17,21 @@ class SocketServer:
         while True:
             try:
                 message = await websocket.recv()
-                print(message)
+                # print(message)
 
                 status_update = {
                     "type": "status_update",
                     "server_status": self.server_manager.status,
+                    "connected_players": self.server_manager.connected_players,
                 }
                 await websocket.send(json.dumps(status_update))
             except Exception as e:
-                print(e)
+                pass
+                # print(e)
 
     async def start_server(self):
         print("STARTING SERVER")
+        logging.getLogger("websockets").setLevel(logging.ERROR)
         async with serve(self.handler, self.host, self.port):
             await asyncio.Future()
 
