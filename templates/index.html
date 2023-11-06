@@ -10,9 +10,8 @@
     <script>
         var previous_status = "";
         var connected_players = [];
-        connected_players = {{ server_manager.connected_players }};
 
-        const websocket = new WebSocket("ws://127.0.0.1:6942/");
+        var websocket = new WebSocket("ws://127.0.0.1:6942/");
         websocket.addEventListener("message", ({ data }) => {
             console.log(data);
             const event = JSON.parse(data);
@@ -46,9 +45,14 @@
                         }
                         previous_status = event.server_status;
 
-                        if (connected_players !== event.connected_players && (connected_players.length != 0 && event.connected_players.length != 0))
+                        if (connected_players != event.connected_players && (connected_players.length != 0 && event.connected_players != 0))
                         {
+                            console.log("SERVER CONNECTED PLAYERS: ");
                             console.log(event.connected_players);
+                            console.log(typeof(event.connected_players));
+                            console.log("LOCAL CONNECTED PLAYERS: ");
+                            console.log(connected_players);
+                            console.log(typeof(connected_players));
                             //window.location.reload();
                         }
             }
@@ -58,15 +62,80 @@
 
         const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
+        async function fetchConnectedPlayers() {
+            // UPDATE CONNECTED PLAYERS
+            let players_status = await fetch(window.location.origin + "/connected-players");
+            console.log(window.location.origin + "/connected-players");
+            if (players_status.ok)
+            {
+                let json = await players_status.json();
+                console.log(json);
+                connected_players = json.connected_players
+            }
+            // UPDATED CONNECTED PLAYERS
+
+        }
         async function updateServerStatus() {
+
             await sleep(2000);
+
             if (websocket.readyState == websocket.CLOSED)
             {
-                window.location.reload();
+                websocket = new WebSocket("ws://127.0.0.1:6942/");
+
+                websocket.addEventListener("message", ({ data }) => {
+                    console.log(data);
+                    const event = JSON.parse(data);
+                    switch (event.type)
+                    {
+                        case "status_update":
+                            console.log("server_status");
+
+                                if ( event.server_status == "busy")
+                                {
+                                    document.getElementById("status-icon").setAttribute("fill", "yellow");
+                                }
+                                if ( event.server_status == "stopped")
+                                {
+                                    document.getElementById("status-icon").setAttribute("fill", "red");
+                                }
+                                if (event.server_status == "running")
+                                {
+                                    document.getElementById("status-icon").setAttribute("fill", "green");
+                                }
+
+
+                                if (previous_status == "")
+                                {
+                                    previous_status = event.server_status;
+                                }
+                                if (previous_status != event.server_status)
+                                {
+                                    previous_status = event.server_status;
+                                    window.location.reload();
+                                }
+                                previous_status = event.server_status;
+
+                                if (connected_players != event.connected_players && (connected_players.length != 0 && event.connected_players != 0))
+                                {
+                                    console.log("SERVER CONNECTED PLAYERS: ");
+                                    console.log(event.connected_players);
+                                    console.log(typeof(event.connected_players));
+                                    console.log("LOCAL CONNECTED PLAYERS: ");
+                                    console.log(connected_players);
+                                    console.log(typeof(connected_players));
+                                    //window.location.reload();
+                                }
+                    }
+
+                // do something with event
+                });
+                await updateServerStatus();
+                //window.location.reload();
             }
             if (websocket.readyState == websocket.CONNECTING)
             {
-               await updateServerStatus;
+               await updateServerStatus();
             }
             else
             {
@@ -96,7 +165,7 @@
             //     }
             // }
         }
-
+        fetchConnectedPlayers();
         updateServerStatus();
     </script>
 

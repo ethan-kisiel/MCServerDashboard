@@ -86,6 +86,11 @@ def server_status():
     return jsonify(status=current_status)
 
 
+@app.route("/connected-players")
+def connected_players():
+    return jsonify(connected_players=server_manager.connected_players)
+
+
 @app.route("/start-server", methods=["POST"])
 def start_server():
     server_manager.start_server()
