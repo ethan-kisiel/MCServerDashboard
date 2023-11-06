@@ -1,3 +1,4 @@
+from threading import current_thread
 from utils.filesmanager.filesmanager import FilesManager
 from utils.termmanager.termmanager import TermManager
 import time
@@ -22,6 +23,15 @@ class ServerManager:
         self.server_properties = {}
         self.get_properties()
 
+    def __countdown(self, count: int, message: str):
+        self.term_manager.send(f"{MESSAGE_PREFIX} {message} in {count}")
+        time.sleep(1)
+
+        if count <= 0:
+            return
+
+        return self.__countdown(count - 1, message)
+
     def start_server(self):
         try:
             if self.term_manager.is_term_active:
@@ -37,21 +47,22 @@ class ServerManager:
 
     def stop_server(self):
         try:
+            self.is_server_running = False
+            self.__countdown(10, "Stopping server...")
             self.term_manager.send("stop")
             self.term_manager.stop_process()
-
-            self.is_server_running = False
 
             return 0
         except:
             return 1
 
     def restart_server(self):
-        self.term_manager.send(f"{MESSAGE_PREFIX} Server is restarting...")
-        time.sleep(10)
+        self.is_server_busy = True
+        self.__countdown(10, "Restarting server...")
         self.term_manager.send("stop")
         self.term_manager.stop_process()
         self.term_manager.start_process("sh start_server.sh")
+        self.is_server_busy = False
 
     def install_server(self):
         """
@@ -85,8 +96,7 @@ class ServerManager:
 
     def update_server(self):
         self.is_server_busy = True
-        self.term_manager.send(f"{MESSAGE_PREFIX} Updating server...")
-        time.sleep(10)
+        self.__countdown(10, "Updating server...")
         self.stop_server()
         self.install_server()
         self.apply_persistence()
@@ -130,8 +140,7 @@ class ServerManager:
         """
         Sets the world_name property locally, then applies changes
         """
-        self.term_manager.send(f"{MESSAGE_PREFIX} Server is changing levels...")
-        time.sleep(3)
+        self.__countdown(5, "Server is changing levels...")
         self.stop_server()
         self.server_properties["level-name"] = level_name
         self.apply_properties()

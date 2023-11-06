@@ -83,13 +83,17 @@ def start_server():
 
 @app.route("/stop-server", methods=["POST"])
 def stop_server():
-    server_manager.stop_server()
+    thread = Thread(target=server_manager.stop_server)
+    thread.start()
+    # server_manager.stop_server()
     return redirect("/")
 
 
 @app.route("/restart-server", methods=["POST"])
 def restart_server():
-    server_manager.restart_server()
+    thread = Thread(target=server_manager.restart_server)
+    thread.start()
+
     return redirect("/")
 
 

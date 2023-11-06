@@ -19,14 +19,14 @@
                 console.log(json);
                 if (json.status == "pending")
                 {
+                    await sleep(2000)
                     window.location.reload();
-                    sleep(10000);
-                    //updateServerStatus();
+                    console.log("Sleeping");
                 }
             }
         }
 
-        //updateServerStatus();
+        updateServerStatus();
     </script>
 
 
