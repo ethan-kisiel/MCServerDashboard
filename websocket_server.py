@@ -14,20 +14,19 @@ class SocketServer:
 
     async def handler(self, websocket):
         self.websocket = websocket
-        while True:
-            try:
-                message = await websocket.recv()
-                # print(message)
+        try:
+            message = await websocket.recv()
+            # print(message)
 
-                status_update = {
-                    "type": "status_update",
-                    "server_status": self.server_manager.status,
-                    "connected_players": self.server_manager.connected_players,
-                }
-                await websocket.send(json.dumps(status_update))
-            except Exception as e:
-                pass
-                # print(e)
+            status_update = {
+                "type": "status_update",
+                "server_status": self.server_manager.status,
+                "connected_players": self.server_manager.connected_players,
+            }
+            await websocket.send(json.dumps(status_update))
+        except Exception as e:
+            pass
+            # print(e)
 
     async def start_server(self):
         print("STARTING SERVER")
