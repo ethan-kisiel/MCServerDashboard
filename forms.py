@@ -34,6 +34,16 @@ class UpdateServerForm(FlaskForm):
     update_server_btn = SubmitField("Update Server")
 
 
+class ClearWeatherForm(FlaskForm):
+    submit_route = "/clear-weather"
+    update_server_btn = SubmitField("Clear Weather")
+
+
+class SetDayForm(FlaskForm):
+    submit_route = "/set-day"
+    update_server_btn = SubmitField("Set Day")
+
+
 class ChangeLevelForm(FlaskForm):
     submit_route = "/"
     save_level_btn = SubmitField("Save")

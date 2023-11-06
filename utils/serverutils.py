@@ -11,7 +11,11 @@ data_platform_value = "serverBedrockLinux"
 selector = f'a[data-platform="{data_platform_value}"]'
 # Set up the Selenium WebDriver (assuming you have it installed and the proper driver for your browser)
 
+PLAYER_CONNECTED = "Player connected: "
+PLAYER_DISCONNECTED = "Player disconnected: "
+
 MESSAGE_PREFIX = "title @a actionbar"
+MESSAGE_PREFIX = "say §c"
 
 
 class ServerManager:
@@ -20,6 +24,9 @@ class ServerManager:
         self.files_manager = FilesManager()
         self.is_server_running: bool = False
         self.is_server_busy: bool = False
+
+        self.connected_players = []
+
         self.server_properties = {}
         self.get_properties()
 
@@ -31,6 +38,22 @@ class ServerManager:
             return
 
         return self.__countdown(count - 1, message)
+
+    def read_server_output(self):
+        while True:
+            try:
+                if self.term_manager.process is not None:
+                    output = self.term_manager.process.stdout.readline()
+                    if PLAYER_CONNECTED in output:
+                        player = output.split(PLAYER_CONNECTED)[1].split(",")[0]
+                        if player not in self.connected_players:
+                            self.connected_players.append(player)
+                    if PLAYER_DISCONNECTED in output:
+                        player = output.split(PLAYER_DISCONNECTED)[1].split(",")[0]
+                        if player in self.connected_players:
+                            self.connected_players.remove(player)
+            except Exception as e:
+                print(e)
 
     def start_server(self):
         try:
@@ -170,3 +193,21 @@ class ServerManager:
             return 0
         except:
             return 1
+
+    @property
+    def status(self):
+        if self.is_server_busy:
+            return "busy"
+        elif self.is_server_running:
+            return "running"
+        else:
+            return "stopped"
+
+    @property
+    def color_status(self):
+        if self.is_server_busy:
+            return "yellow"
+        elif self.is_server_running:
+            return "green"
+        else:
+            return "red"

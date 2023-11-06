@@ -1,7 +1,9 @@
+import asyncio
 from secrets import token_urlsafe
 from flask import Flask, render_template, redirect, url_for, jsonify
 from forms import *
 from threading import Thread
+from websocket_server import SocketServer
 
 from utils.serverutils import ServerManager
 
@@ -9,6 +11,14 @@ server_manager = ServerManager()
 
 app = Flask(__name__)
 app.secret_key = token_urlsafe(16)
+
+
+socket_server = SocketServer("127.0.0.1", 6942, server_manager)
+socket_thread = Thread(target=socket_server.run)
+socket_thread.start()
+
+thread = Thread(target=server_manager.read_server_output)
+thread.start()
 
 
 @app.route("/")
@@ -78,6 +88,8 @@ def server_status():
 @app.route("/start-server", methods=["POST"])
 def start_server():
     server_manager.start_server()
+    # asyncio.run(socket_server.update_status("Test"))
+    # socket_server.update_status()
     return redirect("/")
 
 

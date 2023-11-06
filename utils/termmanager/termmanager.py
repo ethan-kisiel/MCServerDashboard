@@ -13,7 +13,7 @@ class TermManager:
     Interfaces with terminal process
     """
 
-    process: Popen
+    process: Popen = None
     command: str
     is_term_active: bool
 
@@ -42,6 +42,7 @@ class TermManager:
             self.process = Popen(
                 command,
                 stdin=PIPE,
+                stdout=PIPE,
                 shell=True,
                 text=True,
             )
