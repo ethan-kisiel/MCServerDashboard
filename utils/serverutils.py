@@ -65,7 +65,8 @@ class ServerManager:
                         if player in self.connected_players:
                             self.connected_players.remove(player)
             except Exception as e:
-                print(e)
+                pass
+                # print(e)
 
     def start_server(self, tries=0):
         try:
@@ -84,10 +85,9 @@ class ServerManager:
 
     def stop_server(self, with_countdown=True):
         try:
+            self.is_server_running = False
             if with_countdown:
                 self.__countdown(10, "Stopping server...")
-
-            self.is_server_running = False
 
             self.term_manager.send("stop")
             self.term_manager.stop_process()
@@ -101,10 +101,10 @@ class ServerManager:
             return 1
 
     def restart_server(self, with_countdown=True):
+        self.is_server_busy = True
         if with_countdown:
             self.__countdown(10, "Restarting server...")
 
-        self.is_server_busy = True
         self.stop_server(with_countdown=False)
         self.start_server()
         self.is_server_busy = False
@@ -128,10 +128,9 @@ class ServerManager:
         print(f"clean res = {clean_res}, transfer res = {transfer_res}")
 
     def update_server(self, with_countdown=True):
+        self.is_server_busy = True
         if with_countdown:
             self.__countdown(10, "Updating server...")
-
-        self.is_server_busy = True
         self.stop_server(with_countdown=False)
         self.install_server()
         self.apply_persistence()
@@ -175,6 +174,7 @@ class ServerManager:
         """
         Sets the world_name property locally, then applies changes
         """
+        self.is_server_busy = True
         if with_countdown:
             self.__countdown(5, "Server is changing levels...")
 
@@ -182,6 +182,7 @@ class ServerManager:
         self.server_properties["level-name"] = level_name
         self.apply_properties()
         self.start_server()
+        self.is_server_busy = False
 
     def get_levels(self):
         return self.files_manager.get_folders("bedrock-server/worlds")

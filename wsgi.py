@@ -27,7 +27,9 @@ WEBSOCKET_PORT = websocket_port if websocket_port is not None else 6942
 
 WEBSOCKET_CONNECTION_STRING = f"ws://{WEBSOCKET_PUBLIC_ADDRESS}:{WEBSOCKET_PORT}/"
 
-socket_server = SocketServer(WEBSOCKET_LOCAL_ADDRESS, WEBSOCKET_PORT, server_manager)
+socket_server = SocketServer(
+    WEBSOCKET_LOCAL_ADDRESS, int(WEBSOCKET_PORT), server_manager
+)
 socket_thread = Thread(target=socket_server.run)
 socket_thread.start()
 
@@ -111,6 +113,9 @@ def connected_players():
 
 @app.route("/start-server", methods=["POST"])
 def start_server():
+    if server_manager.is_server_busy or server_manager.is_server_running:
+        return redirect("/")
+
     thread = Thread(target=server_manager.start_server)
     thread.start()
 
@@ -119,6 +124,8 @@ def start_server():
 
 @app.route("/stop-server", methods=["POST"])
 def stop_server():
+    if server_manager.is_server_busy or not server_manager.is_server_running:
+        return redirect("/")
     thread = Thread(target=server_manager.stop_server)
     thread.start()
     # server_manager.stop_server()
@@ -127,6 +134,8 @@ def stop_server():
 
 @app.route("/restart-server", methods=["POST"])
 def restart_server():
+    if server_manager.is_server_busy:
+        return redirect("/")
     thread = Thread(target=server_manager.restart_server)
     thread.start()
 
@@ -135,6 +144,8 @@ def restart_server():
 
 @app.route("/update-server", methods=["POST"])
 def update_server():
+    if server_manager.is_server_busy:
+        return redirect("/")
     thread = Thread(target=server_manager.update_server)
     thread.start()
     # server_manager.update_server()
@@ -145,6 +156,9 @@ def update_server():
 @app.route("/send-command", methods=["POST"])
 def send_command():
     form = SendCommandForm()
+
+    if server_manager.is_server_busy or not server_manager.is_server_running:
+        return redirect("/")
     if form.validate_on_submit():
         thread = Thread(
             target=server_manager.term_manager.send, args=(form.command_field.data,)
@@ -163,6 +177,8 @@ def change_level():
     form = ChangeLevelForm()
     form.selected_level_field.choices = [(level, level) for level in levels]
 
+    if server_manager.is_server_busy:
+        return redirect("/")
     if form.validate_on_submit():
         thread = Thread(
             target=server_manager.set_level, args=(form.selected_level_field.data,)
@@ -176,6 +192,8 @@ def change_level():
 @app.route("/upload-level", methods=["POST"])
 def upload_level():
     form = LevelUploadForm()
+    if server_manager.is_server_busy:
+        return redirect("/")
     if form.validate_on_submit():
         try:
             file = form.zip_file_field.data
