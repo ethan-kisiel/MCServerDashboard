@@ -10,7 +10,7 @@
     <script>
         var previous_status = "";
         var connected_players = [];
-        const websockeAddress = "ws://127.0.0.1:6942/";
+        const websockeAddress = "{{ websocket_server }}";
 
         var websocket = new WebSocket(websockeAddress);
 

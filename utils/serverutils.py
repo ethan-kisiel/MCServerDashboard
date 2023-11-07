@@ -39,6 +39,18 @@ class ServerManager:
 
         return self.__countdown(count - 1, message)
 
+    def apply_persistence(self):
+        persistent_dir = "persistent"
+        self.files_manager.transfer_contents(f"{persistent_dir}", "bedrock-server")
+
+    def update_settings(self, settings: list):
+        """
+        overwrites settings file with the
+        """
+
+        with open("bedrock-server/server.properties", "w") as properties:
+            properties.writelines(settings)
+
     def read_server_output(self):
         while True:
             try:
@@ -91,7 +103,7 @@ class ServerManager:
             self.__countdown(10, "Restarting server...")
 
         self.is_server_busy = True
-        self.stop_server()
+        self.stop_server(with_countdown=False)
         self.start_server()
         self.is_server_busy = False
 
@@ -112,18 +124,6 @@ class ServerManager:
         clean_res = self.files_manager.clean_dir(temp_dir)
 
         print(f"clean res = {clean_res}, transfer res = {transfer_res}")
-
-    def apply_persistence(self):
-        persistent_dir = "persistent"
-        self.files_manager.transfer_contents(f"{persistent_dir}", "bedrock-server")
-
-    def update_settings(self, settings: list):
-        """
-        overwrites settings file with the
-        """
-
-        with open("bedrock-server/server.properties", "w") as properties:
-            properties.writelines(settings)
 
     def update_server(self, with_countdown=True):
         if with_countdown:
@@ -173,8 +173,10 @@ class ServerManager:
         """
         Sets the world_name property locally, then applies changes
         """
-        self.__countdown(5, "Server is changing levels...")
-        self.stop_server()
+        if with_countdown:
+            self.__countdown(5, "Server is changing levels...")
+
+        self.stop_server(with_countdown=False)
         self.server_properties["level-name"] = level_name
         self.apply_properties()
         self.start_server()

@@ -29,7 +29,7 @@ class SocketServer:
             # print(e)
 
     async def start_server(self):
-        print("STARTING SERVER")
+        print(f"STARTING WEBSOCKET SERVER on {self.host}:{self.port}")
         logging.getLogger("websockets").setLevel(logging.ERROR)
         async with serve(self.handler, self.host, self.port):
             await asyncio.Future()

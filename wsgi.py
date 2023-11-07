@@ -1,3 +1,4 @@
+import os
 from secrets import token_urlsafe
 from flask import Flask, render_template, redirect, jsonify
 from forms import *
@@ -5,14 +6,28 @@ from threading import Thread
 from websocket_server import SocketServer
 
 from utils.serverutils import ServerManager
+from utils.config_reader import load_config
+
+load_config("dashboard-config")
 
 server_manager = ServerManager()
 
 app = Flask(__name__)
 app.secret_key = token_urlsafe(16)
 
+is_application_debug = bool(os.environ.get("DEBUG"))
+websocket_address = os.environ.get("WEBSOCKET_ADDRESS")
+websocket_port = os.environ.get("WEBSOCKET_PORT")
 
-socket_server = SocketServer("127.0.0.1", 6942, server_manager)
+WEBSOCKET_LOCAL_ADDRESS = "127.0.0.1" if is_application_debug else "0.0.0.0"
+WEBSOCKET_PUBLIC_ADDRESS = (
+    websocket_address if websocket_address is not None else "127.0.0.1"
+)
+WEBSOCKET_PORT = websocket_port if websocket_port is not None else 6942
+
+WEBSOCKET_CONNECTION_STRING = f"ws://{WEBSOCKET_PUBLIC_ADDRESS}:{WEBSOCKET_PORT}/"
+
+socket_server = SocketServer(WEBSOCKET_LOCAL_ADDRESS, WEBSOCKET_PORT, server_manager)
 socket_thread = Thread(target=socket_server.run)
 socket_thread.start()
 
@@ -67,7 +82,12 @@ def index():
         "level_upload_form": level_upload_form,
     }
 
-    return render_template("index.html", forms=forms, server_manager=server_manager)
+    return render_template(
+        "index.html",
+        forms=forms,
+        server_manager=server_manager,
+        websocket_server=WEBSOCKET_CONNECTION_STRING,
+    )
 
 
 @app.route("/server-status")
@@ -127,7 +147,7 @@ def send_command():
     form = SendCommandForm()
     if form.validate_on_submit():
         thread = Thread(
-            target=server_manager.term_manager.send, args=(form.command_field.data)
+            target=server_manager.term_manager.send, args=(form.command_field.data,)
         )
         thread.start()
 
@@ -145,7 +165,7 @@ def change_level():
 
     if form.validate_on_submit():
         thread = Thread(
-            target=server_manager.set_level, args=(form.selected_level_field.data)
+            target=server_manager.set_level, args=(form.selected_level_field.data,)
         )
         thread.start()
 
