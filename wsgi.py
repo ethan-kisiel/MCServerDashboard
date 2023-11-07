@@ -1,7 +1,5 @@
-import asyncio
-import logging
 from secrets import token_urlsafe
-from flask import Flask, render_template, redirect, url_for, jsonify
+from flask import Flask, render_template, redirect, jsonify
 from forms import *
 from threading import Thread
 from websocket_server import SocketServer
@@ -93,9 +91,9 @@ def connected_players():
 
 @app.route("/start-server", methods=["POST"])
 def start_server():
-    server_manager.start_server()
-    # asyncio.run(socket_server.update_status("Test"))
-    # socket_server.update_status()
+    thread = Thread(target=server_manager.start_server)
+    thread.start()
+
     return redirect("/")
 
 
@@ -120,6 +118,7 @@ def update_server():
     thread = Thread(target=server_manager.update_server)
     thread.start()
     # server_manager.update_server()
+
     return redirect("/")
 
 
@@ -127,7 +126,12 @@ def update_server():
 def send_command():
     form = SendCommandForm()
     if form.validate_on_submit():
-        server_manager.term_manager.send(form.command_field.data)
+        thread = Thread(
+            target=server_manager.term_manager.send, args=(form.command_field.data)
+        )
+        thread.start()
+
+        # server_manager.term_manager.send(form.command_field.data)
 
     return redirect("/")
 
@@ -140,8 +144,12 @@ def change_level():
     form.selected_level_field.choices = [(level, level) for level in levels]
 
     if form.validate_on_submit():
-        server_manager.set_level(form.selected_level_field.data)
+        thread = Thread(
+            target=server_manager.set_level, args=(form.selected_level_field.data)
+        )
+        thread.start()
 
+        # server_manager.set_level(form.selected_level_field.data)
     return redirect("/")
 
 
@@ -153,8 +161,10 @@ def upload_level():
             file = form.zip_file_field.data
             filename = secure_filename(file.filename)
             file.save(f"temp/{filename}")
+            thread = Thread(target=server_manager.upload_level, args=(file, filename))
+            thread.start()
 
-            server_manager.upload_level(file, filename)
+            # server_manager.upload_level(file, filename)
 
         except Exception as e:
             print(e)

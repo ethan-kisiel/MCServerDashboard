@@ -68,23 +68,31 @@ class ServerManager:
             self.start_server()
             return 1
 
-    def stop_server(self):
+    def stop_server(self, with_countdown=True):
         try:
+            if with_countdown:
+                self.__countdown(10, "Stopping server...")
+
             self.is_server_running = False
-            self.__countdown(10, "Stopping server...")
+
             self.term_manager.send("stop")
             self.term_manager.stop_process()
+
+            self.connected_players = (
+                []
+            )  # fixes server restart not being reflected in the front end
 
             return 0
         except:
             return 1
 
-    def restart_server(self):
+    def restart_server(self, with_countdown=True):
+        if with_countdown:
+            self.__countdown(10, "Restarting server...")
+
         self.is_server_busy = True
-        self.__countdown(10, "Restarting server...")
-        self.term_manager.send("stop")
-        self.term_manager.stop_process()
-        self.term_manager.start_process("sh start_server.sh")
+        self.stop_server()
+        self.start_server()
         self.is_server_busy = False
 
     def install_server(self):
@@ -117,10 +125,12 @@ class ServerManager:
         with open("bedrock-server/server.properties", "w") as properties:
             properties.writelines(settings)
 
-    def update_server(self):
+    def update_server(self, with_countdown=True):
+        if with_countdown:
+            self.__countdown(10, "Updating server...")
+
         self.is_server_busy = True
-        self.__countdown(10, "Updating server...")
-        self.stop_server()
+        self.stop_server(with_countdown=False)
         self.install_server()
         self.apply_persistence()
         self.start_server()
@@ -159,7 +169,7 @@ class ServerManager:
             print(e)
             return 1
 
-    def set_level(self, level_name: str):
+    def set_level(self, level_name: str, with_countdown=True):
         """
         Sets the world_name property locally, then applies changes
         """

@@ -10,56 +10,64 @@
     <script>
         var previous_status = "";
         var connected_players = [];
+        const websockeAddress = "ws://127.0.0.1:6942/";
 
-        var websocket = new WebSocket("ws://127.0.0.1:6942/");
-        websocket.addEventListener("message", ({ data }) => {
-            console.log(data);
-            const event = JSON.parse(data);
-            switch (event.type)
-            {
-                case "status_update":
-                    console.log("server_status");
+        var websocket = new WebSocket(websockeAddress);
 
-                        if ( event.server_status == "busy")
-                        {
-                            document.getElementById("status-icon").setAttribute("fill", "yellow");
-                        }
-                        if ( event.server_status == "stopped")
-                        {
-                            document.getElementById("status-icon").setAttribute("fill", "red");
-                        }
-                        if (event.server_status == "running")
-                        {
-                            document.getElementById("status-icon").setAttribute("fill", "green");
-                        }
+        function setupWebsocketConnection()
+        {
+            websocket = new WebSocket(websockeAddress);
+
+            websocket.addEventListener("message", ({ data }) => {
+                console.log(data);
+                const event = JSON.parse(data);
+                switch (event.type)
+                {
+                    case "status_update":
+                        console.log("server_status");
+
+                            if ( event.server_status == "busy")
+                            {
+                                document.getElementById("status-icon").setAttribute("fill", "yellow");
+                            }
+                            if ( event.server_status == "stopped")
+                            {
+                                document.getElementById("status-icon").setAttribute("fill", "red");
+                            }
+                            if (event.server_status == "running")
+                            {
+                                document.getElementById("status-icon").setAttribute("fill", "green");
+                            }
 
 
-                        if (previous_status == "")
-                        {
+                            if (previous_status == "")
+                            {
+                                previous_status = event.server_status;
+                            }
+                            if (previous_status != event.server_status)
+                            {
+                                previous_status = event.server_status;
+                                window.location.reload();
+                            }
                             previous_status = event.server_status;
-                        }
-                        if (previous_status != event.server_status)
-                        {
-                            previous_status = event.server_status;
-                            window.location.reload();
-                        }
-                        previous_status = event.server_status;
 
-                        if (connected_players != event.connected_players && (connected_players.length != 0 && event.connected_players != 0))
-                        {
-                            console.log("SERVER CONNECTED PLAYERS: ");
-                            console.log(event.connected_players);
-                            console.log(typeof(event.connected_players));
-                            console.log("LOCAL CONNECTED PLAYERS: ");
-                            console.log(connected_players);
-                            console.log(typeof(connected_players));
-                            //window.location.reload();
-                        }
-            }
+                            if (JSON.stringify(connected_players) !== JSON.stringify(event.connected_players))
+                            {
+                                console.log("SERVER CONNECTED PLAYERS: ");
+                                console.log(event.connected_players);
+                                console.log(typeof(event.connected_players));
+                                console.log("LOCAL CONNECTED PLAYERS: ");
+                                console.log(connected_players);
+                                console.log(typeof(connected_players));
+                                window.location.reload();
+                            }
+                }
 
-        // do something with event
-        });
+            // do something with event
+            });
+        }
 
+        setupWebsocketConnection();
         const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay))
 
         async function fetchConnectedPlayers() {
@@ -81,55 +89,7 @@
 
             if (websocket.readyState == websocket.CLOSED)
             {
-                websocket = new WebSocket("ws://127.0.0.1:6942/");
-
-                websocket.addEventListener("message", ({ data }) => {
-                    console.log(data);
-                    const event = JSON.parse(data);
-                    switch (event.type)
-                    {
-                        case "status_update":
-                            console.log("server_status");
-
-                                if ( event.server_status == "busy")
-                                {
-                                    document.getElementById("status-icon").setAttribute("fill", "yellow");
-                                }
-                                if ( event.server_status == "stopped")
-                                {
-                                    document.getElementById("status-icon").setAttribute("fill", "red");
-                                }
-                                if (event.server_status == "running")
-                                {
-                                    document.getElementById("status-icon").setAttribute("fill", "green");
-                                }
-
-
-                                if (previous_status == "")
-                                {
-                                    previous_status = event.server_status;
-                                }
-                                if (previous_status != event.server_status)
-                                {
-                                    previous_status = event.server_status;
-                                    window.location.reload();
-                                }
-                                previous_status = event.server_status;
-
-                                if (connected_players != event.connected_players && (connected_players.length != 0 && event.connected_players != 0))
-                                {
-                                    console.log("SERVER CONNECTED PLAYERS: ");
-                                    console.log(event.connected_players);
-                                    console.log(typeof(event.connected_players));
-                                    console.log("LOCAL CONNECTED PLAYERS: ");
-                                    console.log(connected_players);
-                                    console.log(typeof(connected_players));
-                                    //window.location.reload();
-                                }
-                    }
-
-                // do something with event
-                });
+                setupWebsocketConnection();
                 await updateServerStatus();
                 //window.location.reload();
             }
