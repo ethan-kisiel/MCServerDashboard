@@ -67,7 +67,7 @@ class ServerManager:
             except Exception as e:
                 print(e)
 
-    def start_server(self):
+    def start_server(self, tries=0):
         try:
             if self.term_manager.is_term_active:
                 self.term_manager.send("sh start_server.sh")
@@ -76,9 +76,11 @@ class ServerManager:
 
             self.is_server_running = True
             return 0
-        except:
-            self.start_server()
-            return 1
+        except Exception as e:
+            if tries >= 5:
+                return 1
+
+            self.start_server(tries=tries + 1)
 
     def stop_server(self, with_countdown=True):
         try:

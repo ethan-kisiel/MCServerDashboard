@@ -15,7 +15,7 @@ server_manager = ServerManager()
 app = Flask(__name__)
 app.secret_key = token_urlsafe(16)
 
-is_application_debug = bool(os.environ.get("DEBUG"))
+is_application_debug = True if os.environ.get("DEBUG") == "True" else False
 websocket_address = os.environ.get("WEBSOCKET_ADDRESS")
 websocket_port = os.environ.get("WEBSOCKET_PORT")
 

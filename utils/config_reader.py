@@ -55,6 +55,7 @@ def read_config(config_file: str):
 
 
 def load_config(config_file: str):
+    print("LOADING CONFIG")
     config_dict = read_config(config_file)
 
     for key in config_dict.keys():
