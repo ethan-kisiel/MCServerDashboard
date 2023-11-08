@@ -31,10 +31,8 @@ socket_server = SocketServer(
     WEBSOCKET_LOCAL_ADDRESS, int(WEBSOCKET_PORT), server_manager
 )
 socket_thread = Thread(target=socket_server.run)
+socket_thread.daemon = True
 socket_thread.start()
-
-thread = Thread(target=server_manager.read_server_output)
-thread.start()
 
 
 @app.route("/")
@@ -55,6 +53,7 @@ def index():
     change_level_form.selected_level_field.choices = [
         (level, level) for level in levels
     ]
+
     change_level_form.selected_level_field.default = current
     change_level_form.selected_level_field.data = current
 

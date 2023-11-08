@@ -77,7 +77,7 @@
             if (players_status.ok)
             {
                 let json = await players_status.json();
-                console.log(json);
+                //console.log(json);
                 connected_players = json.connected_players
             }
             // UPDATED CONNECTED PLAYERS
@@ -85,7 +85,7 @@
         }
         async function updateServerStatus() {
 
-            await sleep(2000);
+            await sleep(1000 * 0.25);
 
             if (websocket.readyState == websocket.CLOSED)
             {
@@ -333,8 +333,6 @@
         }
 
 
-
-
         #zip_file_input {
             /* Your styles for the zip_file_input element go here */
             /* For example: */
@@ -358,7 +356,7 @@
         }
     </style>
 
-    <div>
+    <div class="container">
         <p>
         Server Status:
         <svg id="status-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="{{ server_manager.color_status }}" class="bi bi-circle-fill" viewBox="0 0 16 16">
@@ -387,7 +385,10 @@
             </form>
           </div>
           <div class="col">
-
+            <form method="post", action="/update-server">
+                {{ forms["update_form"].csrf_token }}
+                {{ forms["update_form"].update_server_btn() }}
+            </form>
           </div>
         </div>
 
@@ -395,15 +396,11 @@
 
         <div class="row">
             <div class="col">
-                <form method="post", action="/update-server">
-                    {{ forms["update_form"].csrf_token }}
-                    {{ forms["update_form"].update_server_btn() }}
-                </form>
             </div>
-              <div class="col">
-              </div>
-              <div class="col">
-              </div>
+            <div class="col">
+            </div>
+            <div class="col">
+            </div>
           </div>
 
 
@@ -434,19 +431,19 @@
                 </form>
               </div>
           </div>
-
-          <div class="row">
-            <div class="col">
+    </div>
+    <div class="container text-left">
+        <div class="row">
             <h3>Connected Players: </h3>
-            <ul class="list-group">
-                {% for player in server_manager.connected_players %}
-                    <li class="list-group-item">{{ player }}</li>
-                {% endfor %}
-            </ul>
+            <div class="col">
+                <ul class="list-group">
+                    {% for player in server_manager.connected_players %}
+                        <li class="list-group-item">{{ player }}</li>
+                    {% endfor %}
+                </ul>
             </div>
             <div class="col"></div>
             <div class="col"></div>
           </div>
-
     </div>
 </body>

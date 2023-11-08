@@ -27,6 +27,7 @@ class TermManager:
     def stop_process(self):
         try:
             self.process.stdin.close()
+            self.process.stdout.close()
             self.process.wait()
             self.is_term_active = False
 

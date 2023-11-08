@@ -46,7 +46,7 @@ class SetDayForm(FlaskForm):
 
 class ChangeLevelForm(FlaskForm):
     submit_route = "/"
-    save_level_btn = SubmitField("Save")
+    save_level_btn = SubmitField("Change Level")
     selected_level_field = SelectField(
         "Choose an option", choices=[("default", "default")]
     )

@@ -1,7 +1,8 @@
-from threading import current_thread
+import time
+import threading
 from utils.filesmanager.filesmanager import FilesManager
 from utils.termmanager.termmanager import TermManager
-import time
+
 
 # Replace 'your_url_here' with the URL of the webpage you want to scrape
 url = "https://www.minecraft.net/en-us/download/server/bedrock"
@@ -56,6 +57,10 @@ class ServerManager:
             try:
                 if self.term_manager.process is not None:
                     output = self.term_manager.process.stdout.readline()
+
+                    if self.term_manager.process.poll() is not None and output == "":
+                        break
+
                     if PLAYER_CONNECTED in output:
                         player = output.split(PLAYER_CONNECTED)[1].split(",")[0]
                         if player not in self.connected_players:
@@ -64,6 +69,8 @@ class ServerManager:
                         player = output.split(PLAYER_DISCONNECTED)[1].split(",")[0]
                         if player in self.connected_players:
                             self.connected_players.remove(player)
+                else:
+                    break
             except Exception as e:
                 pass
                 # print(e)
@@ -74,6 +81,13 @@ class ServerManager:
                 self.term_manager.send("sh start_server.sh")
             else:
                 self.term_manager.start_process("sh start_server.sh")
+
+                all_threads = [thread.name for thread in threading.enumerate()]
+                if "output_monitor" not in all_threads:
+                    thread = threading.Thread(target=self.read_server_output)
+                    thread.name = "output_monitor"
+                    thread.daemon = True
+                    thread.start()
 
             self.is_server_running = True
             return 0
