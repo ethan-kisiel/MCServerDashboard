@@ -83,6 +83,17 @@ def index():
         "level_upload_form": level_upload_form,
     }
 
+    if is_application_debug:
+        server_manager.connected_players = [
+            "joe",
+            "bob",
+            "jordan",
+            "ligma",
+            "bophades",
+            "ZyggyK",
+            "deezus",
+        ]
+
     return render_template(
         "index.html",
         forms=forms,

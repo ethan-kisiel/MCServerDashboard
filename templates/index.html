@@ -438,17 +438,20 @@
           </div>
     </div>
     <div class="container text-left">
+        <h3>Connected Players: </h3>
+        <br>
+        {% for group in server_manager.sorted_connected_players %}
         <div class="row">
-            <h3>Connected Players: </h3>
+            {% for player in group %}
             <div class="col">
                 <ul class="list-group">
-                    {% for player in server_manager.connected_players %}
-                        <li class="list-group-item">{{ player }}</li>
-                    {% endfor %}
+                    {% if player %}
+                    <li class="list-group-item">{{ player }}</li>
+                    {% endif %}
                 </ul>
             </div>
-            <div class="col"></div>
-            <div class="col"></div>
+            {% endfor %}
           </div>
+          {% endfor %}
     </div>
 </body>

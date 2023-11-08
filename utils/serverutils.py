@@ -1,5 +1,6 @@
 import time
 import threading
+from math import ceil
 from utils.filesmanager.filesmanager import FilesManager
 from utils.termmanager.termmanager import TermManager
 
@@ -203,7 +204,7 @@ class ServerManager:
         return self.files_manager.get_folders("bedrock-server/worlds")
 
     def get_current_level(self):
-        return self.server_properties["level-name"]
+        return self.server_properties.get("level-name")
 
     def upload_level(self, file, filename: str):
         try:
@@ -241,3 +242,17 @@ class ServerManager:
             return "green"
         else:
             return "red"
+
+    @property
+    def sorted_connected_players(self):
+        sorted_players_list = []
+        for i in range(ceil(len(self.connected_players) / 3)):
+            sorted_players_list.append([])
+            for j in range(3):
+                try:
+                    players_index = (i * 3) + j
+                    sorted_players_list[i].append(self.connected_players[players_index])
+                except:
+                    sorted_players_list[i].append(None)
+
+        return sorted_players_list
