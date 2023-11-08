@@ -10,6 +10,7 @@
     <script>
         var previous_status = "";
         var connected_players = [];
+        var websocketUptime = 0.0;
         const websockeAddress = "{{ websocket_server }}";
 
         var websocket = new WebSocket(websockeAddress);
@@ -84,9 +85,13 @@
 
         }
         async function updateServerStatus() {
+            if (websocketUptime >= 60000 * 5)
+            {
+                return;
+            }
 
             await sleep(1000 * 0.25);
-
+            websocketUptime += 1000 * 0.25
             if (websocket.readyState == websocket.CLOSED)
             {
                 setupWebsocketConnection();

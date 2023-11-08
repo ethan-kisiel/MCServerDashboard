@@ -13,20 +13,19 @@ class SocketServer:
         self.pending_update = False
 
     async def handler(self, websocket):
-        while True:
-            try:
-                request = await websocket.recv()
-                if request == "update":
-                    status_update = {
-                        "type": "status_update",
-                        "server_status": self.server_manager.status,
-                        "connected_players": self.server_manager.connected_players,
-                    }
+        try:
+            request = await websocket.recv()
+            if request == "update":
+                status_update = {
+                    "type": "status_update",
+                    "server_status": self.server_manager.status,
+                    "connected_players": self.server_manager.connected_players,
+                }
 
-                    await websocket.send(json.dumps(status_update))
-            except Exception as e:
-                pass
-            # print(e)
+                await websocket.send(json.dumps(status_update))
+        except Exception as e:
+            pass
+        # print(e)
 
     async def start_server(self):
         print(f"STARTING WEBSOCKET SERVER on {self.host}:{self.port}")
