@@ -54,9 +54,10 @@ class ServerManager:
 
     def read_server_output(self):
         while True:
+            time.sleep(1)
             try:
                 if self.term_manager.process is not None:
-                    output = self.term_manager.process.stdout.readline()
+                    output = self.term_manager.current_line
 
                     if self.term_manager.process.poll() is not None and output == "":
                         break
@@ -72,7 +73,7 @@ class ServerManager:
                 else:
                     break
             except Exception as e:
-                pass
+                raise e
                 # print(e)
 
     def start_server(self, tries=0):

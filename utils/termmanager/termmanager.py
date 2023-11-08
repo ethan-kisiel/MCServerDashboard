@@ -63,3 +63,7 @@ class TermManager:
             return 0
         except:
             return 1
+
+    @property
+    def current_line(self):
+        return self.process.stdout.readline()
