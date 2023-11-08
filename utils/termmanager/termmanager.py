@@ -66,4 +66,8 @@ class TermManager:
 
     @property
     def current_line(self):
-        return self.process.stdout.readline()
+        if self.process is not None:
+            try:
+                return self.process.stdout.readline()
+            except Exception as e:
+                return ""
