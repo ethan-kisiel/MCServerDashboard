@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
@@ -140,9 +140,6 @@
 
 
     <style>
-        body{
-            background-color: rgb(21, 21, 27);
-        }
         div{
             color: antiquewhite;
         }
@@ -469,12 +466,12 @@
 
 
     {% for player in server_manager.connected_players %}
-    <div class="modal" id="kick-user-{{ player }}" tabindex="-1" role="dialog"  aria-hidden="true">
+    <div class="modal fade" id="kick-user-{{ player }}" tabindex="-1" role="dialog"  aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
               <h5 class="modal-title">Kick {{ player }}</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <button type="button" class="close rounded border-0" data-bs-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
@@ -483,8 +480,7 @@
                     <div class="modal-body">
                             {{ forms["kick_user_form"].csrf_token }}
                             {{ forms["kick_user_form"].player_name(value=player) }}
-                            {{ forms["kick_user_form"].kick_reason() }}
-
+                            {{ forms["kick_user_form"].kick_reason(class="form-control") }}
                     </div>
                 </div>
                 <div class="modal-footer">
