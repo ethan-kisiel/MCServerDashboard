@@ -45,6 +45,7 @@ def index():
     send_command_form = SendCommandForm()
     update_server_form = UpdateServerForm()
     level_upload_form = LevelUploadForm()
+    kick_user_form = KickUserForm()
 
     levels = server_manager.get_levels()
     current = server_manager.get_current_level()
@@ -81,6 +82,7 @@ def index():
         "update_form": update_server_form,
         "level_form": change_level_form,
         "level_upload_form": level_upload_form,
+        "kick_user_form": kick_user_form,
     }
 
     if is_application_debug:
@@ -217,6 +219,18 @@ def upload_level():
         except Exception as e:
             print(e)
     ## make call to function here to save the world
+    return redirect("/")
+
+
+@app.route("/kick", methods=["POST"])
+def kick():
+    form = KickUserForm()
+
+    if form.validate_on_submit():
+        command = f"kick {form.player_name.data} {form.kick_reason.data}"
+        thread = Thread(target=server_manager.term_manager.send, args=(command,))
+        thread.start()
+
     return redirect("/")
 
 

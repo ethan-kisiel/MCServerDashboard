@@ -1,11 +1,15 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bedrock Server Manager</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-  </head>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+        <title>Bedrock Server Manager</title>
+
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+    </head>
 <body>
     <script>
         var previous_status = "";
@@ -20,12 +24,12 @@
             websocket = new WebSocket(websockeAddress);
 
             websocket.addEventListener("message", ({ data }) => {
-                console.log(data);
+                // console.log(data);
                 const event = JSON.parse(data);
                 switch (event.type)
                 {
                     case "status_update":
-                        console.log("server_status");
+                        // console.log("server_status");
 
                             if ( event.server_status == "busy")
                             {
@@ -54,12 +58,12 @@
 
                             if (JSON.stringify(connected_players) !== JSON.stringify(event.connected_players))
                             {
-                                console.log("SERVER CONNECTED PLAYERS: ");
-                                console.log(event.connected_players);
-                                console.log(typeof(event.connected_players));
-                                console.log("LOCAL CONNECTED PLAYERS: ");
-                                console.log(connected_players);
-                                console.log(typeof(connected_players));
+                                // console.log("SERVER CONNECTED PLAYERS: ");
+                                // console.log(event.connected_players);
+                                // console.log(typeof(event.connected_players));
+                                // console.log("LOCAL CONNECTED PLAYERS: ");
+                                // console.log(connected_players);
+                                // console.log(typeof(connected_players));
                                 window.location.reload();
                             }
                 }
@@ -74,7 +78,7 @@
         async function fetchConnectedPlayers() {
             // UPDATE CONNECTED PLAYERS
             let players_status = await fetch(window.location.origin + "/connected-players");
-            console.log(window.location.origin + "/connected-players");
+            // console.log(window.location.origin + "/connected-players");
             if (players_status.ok)
             {
                 let json = await players_status.json();
@@ -437,6 +441,8 @@
               </div>
           </div>
     </div>
+
+
     <div class="container text-left">
         <h3>Connected Players: </h3>
         <br>
@@ -446,7 +452,12 @@
             <div class="col">
                 <ul class="list-group">
                     {% if player %}
-                    <li class="list-group-item">{{ player }}</li>
+                    <li class="list-group-item">
+                        {{ player }}
+                    </li>
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#kick-user-{{ player }}">
+                        Kick
+                    </button>
                     {% endif %}
                 </ul>
             </div>
@@ -454,4 +465,37 @@
           </div>
           {% endfor %}
     </div>
+
+
+
+    {% for player in server_manager.connected_players %}
+    <div class="modal" id="kick-user-{{ player }}" tabindex="-1" role="dialog"  aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Kick {{ player }}</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <form method="post", action="/kick">
+                <div class="modal-body">
+                    <div class="modal-body">
+                            {{ forms["kick_user_form"].csrf_token }}
+                            {{ forms["kick_user_form"].player_name(value=player) }}
+                            {{ forms["kick_user_form"].kick_reason() }}
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit"  class="btn btn-danger">Kick</button>
+                </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
 </body>
+
+</html>

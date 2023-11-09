@@ -65,3 +65,16 @@ class LevelUploadForm(FlaskForm):
         validators=[allowed_file_extension],
     )
     file_upload_btn = SubmitField("Upload")
+
+
+class KickUserForm(FlaskForm):
+    submit_route = "/kick"
+
+    player_name = StringField(render_kw={"hidden": "true"})
+
+    kick_reason = StringField(
+        "Kick Reason",
+        render_kw={"placeholder": "Enter a reason for kicking this player..."},
+    )
+
+    submit_btn = SubmitField("Kick User")

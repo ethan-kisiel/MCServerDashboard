@@ -71,3 +71,5 @@ class TermManager:
                 return self.process.stdout.readline()
             except Exception as e:
                 return ""
+        else:
+            return ""
