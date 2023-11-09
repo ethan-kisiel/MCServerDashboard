@@ -55,10 +55,11 @@ class ServerManager:
 
     def read_server_output(self):
         while True:
-            time.sleep(1)
             try:
                 if self.term_manager.process is not None:
                     output = self.term_manager.current_line
+                    if output != "":
+                        print(output)
 
                     if self.term_manager.process.poll() is not None and output == "":
                         break
