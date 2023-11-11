@@ -1,6 +1,6 @@
 import os
 from secrets import token_urlsafe
-from flask import Flask, render_template, redirect, jsonify
+from flask import Flask, render_template, redirect, jsonify, request
 from forms import *
 from threading import Thread
 from websocket_server import SocketServer
@@ -206,18 +206,67 @@ def upload_level():
     form = LevelUploadForm()
     if server_manager.is_server_busy:
         return redirect("/")
-    if form.validate_on_submit():
-        try:
-            file = form.zip_file_field.data
-            filename = secure_filename(file.filename)
-            file.save(f"temp/{filename}")
-            thread = Thread(target=server_manager.upload_level, args=(file, filename))
+
+    file = request.files["file"]
+    filename = secure_filename(file.filename)
+    save_path = os.path.join("temp/", filename)
+
+    current_chunk = int(request.form["dzchunkindex"])
+
+    # If the file already exists it's ok if we are appending to it,
+    # but not if it's new file that would overwrite the existing one
+    if os.path.exists(save_path) and current_chunk == 0:
+        # 400 and 500s will tell dropzone that an error occurred and show an error
+        # return make_response(("File already exists", 400))
+        return redirect("/")
+
+    try:
+        with open(save_path, "ab") as f:
+            f.seek(int(request.form["dzchunkbyteoffset"]))
+            f.write(file.stream.read())
+    except OSError:
+        # log.exception will include the traceback so we can see what's wrong
+        # log.exception('Could not write to file')
+        # return make_response(("Not sure why,"
+        #                     " but we couldn't write the file to disk", 500))
+        return redirect("/")
+
+    total_chunks = int(request.form["dztotalchunkcount"])
+
+    if current_chunk + 1 == total_chunks:
+        # This was the last chunk, the file should be complete and the size we expect
+        if os.path.getsize(save_path) != int(request.form["dztotalfilesize"]):
+            # log.error(
+            #     f"File {file.filename} was completed, "
+            #     f"but has a size mismatch."
+            #     f"Was {os.path.getsize(save_path)} but we"
+            #     f" expected {request.form['dztotalfilesize']} "
+            # )
+            # return make_response(("Size mismatch", 500))
+            return redirect("/")
+        else:
+            # log.info(f"File {file.filename} has been uploaded successfully")
+            thread = Thread(target=server_manager.upload_level, args=(filename,))
             thread.start()
+    else:
+        # log.debug(
+        #     f"Chunk {current_chunk + 1} of {total_chunks} "
+        #     f"for file {file.filename} complete"
+        # )
+        pass
 
-            # server_manager.upload_level(file, filename)
+    # if form.validate_on_submit():
+    #     try:
+    #         file = form.zip_file_field.data
+    #         filename = secure_filename(file.filename)
+    #         file.save(f"temp/{filename}")
+    #         thread = Thread(target=server_manager.upload_level, args=(file, filename))
+    #         thread.start()
 
-        except Exception as e:
-            print(e)
+    # server_manager.upload_level(file, filename)
+
+    # except Exception as e:
+    #     print(e)
     ## make call to function here to save the world
     return redirect("/")
 

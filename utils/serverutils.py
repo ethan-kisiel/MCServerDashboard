@@ -207,12 +207,24 @@ class ServerManager:
     def get_current_level(self):
         return self.server_properties.get("level-name")
 
-    def upload_level(self, file, filename: str):
+    def upload_level(self, filename: str):
         try:
+            print(f"UPLOADING LEVEL: {filename}")
             # with open(f"temp/{filename}", "wb") as zip_upload:
             #     zip_upload.write(file.read())
 
-            file_name = filename.split(".zip")[0]
+            file_extension = (
+                ".mcworld"
+                if filename.endswith(".mcworld")
+                else ".zip"
+                if filename.endswith(".zip")
+                else ""
+            )
+
+            if file_extension == "":
+                return 1
+
+            file_name = filename.split(file_extension)[0]
 
             self.files_manager.unzip_file("temp", file_name, f"temp/{file_name}")
 
