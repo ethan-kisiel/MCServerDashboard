@@ -376,6 +376,15 @@
         .dropzone .dz-message {
         font-size: 24px;
         }
+
+
+        .dropzone .dz-size {
+            color: #959595;
+        }
+
+        .dropzone .dz-filename {
+            color: #959595;
+        }
     </style>
 
     <div class="container">
@@ -431,8 +440,8 @@
                   <form method="post", action="/send-command">
                       {{ forms["command_form"].csrf_token }}
                       {{ forms["command_form"].label }}
-                      {{ forms["command_form"].command_field() }}
-                      {{ forms["command_form"].send_command_btn() }}
+                      {{ forms["command_form"].command_field(class="form-control", size="100%") }}
+                      {{ forms["command_form"].send_command_btn(class="form-control") }}
                   </form>
               </div>
           </div>
@@ -441,20 +450,17 @@
             <div class="col">
                 <form method="post", action="/change-level">
                     {{ forms["level_form"].csrf_token }}
-                    {{ forms["level_form"].selected_level_field() }}
+                    {{ forms["level_form"].selected_level_field(class="form-control") }}
                     {{ forms["level_form"].save_level_btn() }}
                 </form>
             </div>
-              <div class="col">
+          </div>
+
+          <div class="row">
+            <div class="col">
                 <form method="POST" action='/upload-level' class="dropzone dz-clickable"
                 id="dropper" enctype="multipart/form-data">
-                </form>
-                <!-- <form method="post", enctype="multipart/form-data", action="/upload-level">
-                    {{ forms["level_upload_form"].csrf_token }}
-                    {{ forms["level_upload_form"].zip_file_field() }}
-                    {{ forms["level_upload_form"].file_upload_btn() }}
-                </form> -->
-              </div>
+            </div>
           </div>
     </div>
 
