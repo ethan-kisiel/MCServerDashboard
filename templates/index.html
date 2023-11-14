@@ -155,8 +155,6 @@
         }
 
 
-
-
         /* Style for the button with id "start_server_btn" */
         #start_server_btn {
         background-color: #4CAF50; /* Green background color */
@@ -246,15 +244,6 @@
         cursor: not-allowed; /* Change cursor to "not-allowed" when disabled */
         }
 
-
-
-        /* Style for the text field */
-        #command_field {
-        width: 60%; /* Set the width of the text field */
-        padding: 4px; /* Add padding to the text field */
-        font-size: 16px; /* Set the font size of the text field */
-        }
-
         /* Style for the button */
         #send_command_btn {
         background-color: #4CAF50; /* Green background color */
@@ -310,18 +299,6 @@
         cursor: not-allowed; /* Change cursor to "not-allowed" when disabled */
         }
 
-        /* Style for the dropdown (selected_level_field) */
-        #selected_level_field {
-            width: 100%;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: #fff;
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
         /* Style for the "Save" button */
         #save_level_btn {
             width: 100%;
@@ -368,7 +345,7 @@
         /* DROPZONE CUSTOMIZATION  */
         .dropzone {
         border: 2px dashed #5b5b5b;
-        background: rgb(77, 77, 77);
+        background: var(--bs-body-bg);
         padding: 0px;
         color: #959595;
         }
@@ -404,21 +381,21 @@
           <div class="col">
             <form method="post", action="/start-server">
                 {{ forms["start_form"].csrf_token }}
-                {{ forms["start_form"].start_server_btn() }}
+                {{ forms["start_form"].start_server_btn(class="form-control") }}
             </form>
             <form method="post", action="/stop-server">
                 {{ forms["stop_form"].csrf_token }}
-                {{ forms["stop_form"].stop_server_btn() }}
+                {{ forms["stop_form"].stop_server_btn(class="form-control") }}
             </form>
             <form method="post", action="/restart-server">
                 {{ forms["restart_form"].csrf_token }}
-                {{ forms["restart_form"].restart_server_btn() }}
+                {{ forms["restart_form"].restart_server_btn(class="form-control") }}
             </form>
           </div>
           <div class="col">
             <form method="post", action="/update-server">
                 {{ forms["update_form"].csrf_token }}
-                {{ forms["update_form"].update_server_btn() }}
+                {{ forms["update_form"].update_server_btn(class="form-control") }}
             </form>
           </div>
         </div>
@@ -437,10 +414,10 @@
 
         <div class="row">
               <div class="col">
-                  <form method="post", action="/send-command">
+                  <form method="post", action="/send-command" class="form-group">
                       {{ forms["command_form"].csrf_token }}
                       {{ forms["command_form"].label }}
-                      {{ forms["command_form"].command_field(class="form-control", size="100%") }}
+                      {{ forms["command_form"].command_field(class="form-control") }}
                       {{ forms["command_form"].send_command_btn(class="form-control") }}
                   </form>
               </div>
@@ -451,7 +428,7 @@
                 <form method="post", action="/change-level">
                     {{ forms["level_form"].csrf_token }}
                     {{ forms["level_form"].selected_level_field(class="form-control") }}
-                    {{ forms["level_form"].save_level_btn() }}
+                    {{ forms["level_form"].save_level_btn(class="from-control") }}
                 </form>
             </div>
           </div>
