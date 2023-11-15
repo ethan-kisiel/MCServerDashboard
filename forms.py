@@ -1,9 +1,14 @@
 from flask_bootstrap import Bootstrap5
 
 from flask_wtf import FlaskForm, CSRFProtect
-from wtforms import StringField, SubmitField, SelectField, FileField
+from wtforms import StringField, SubmitField, SelectField, FileField, PasswordField
 from wtforms.validators import ValidationError
 from werkzeug.utils import secure_filename
+
+
+class LoginForm(FlaskForm):
+    password_field = PasswordField("Password", render_kw={"class": "form-control"})
+    password_submit_btn = SubmitField("Enter", render_kw={"class": "form-control"})
 
 
 class StartServerForm(FlaskForm):

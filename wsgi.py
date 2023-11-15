@@ -1,8 +1,14 @@
 import os
+from uuid import uuid4
 from secrets import token_urlsafe
 from flask import Flask, render_template, redirect, jsonify, request
+from flask_login import LoginManager, login_required, login_user, current_user
 from forms import *
 from threading import Thread
+
+from models import User
+
+
 from websocket_server import SocketServer
 
 from utils.serverutils import ServerManager
@@ -15,9 +21,17 @@ server_manager = ServerManager()
 app = Flask(__name__)
 app.secret_key = token_urlsafe(16)
 
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
 is_application_debug = True if os.environ.get("DEBUG") == "True" else False
 websocket_address = os.environ.get("WEBSOCKET_ADDRESS")
 websocket_port = os.environ.get("WEBSOCKET_PORT")
+
+admin_user = User(is_admin=True)
+admin_password = os.environ.get("ADMIN_PASSWORD")
+ADMIN_PASSWORD = admin_password if admin_password is not None else str(uuid4())
 
 WEBSOCKET_LOCAL_ADDRESS = "127.0.0.1" if is_application_debug else "0.0.0.0"
 WEBSOCKET_PUBLIC_ADDRESS = (
@@ -27,6 +41,7 @@ WEBSOCKET_PORT = websocket_port if websocket_port is not None else 6942
 
 WEBSOCKET_CONNECTION_STRING = f"ws://{WEBSOCKET_PUBLIC_ADDRESS}:{WEBSOCKET_PORT}/"
 
+
 socket_server = SocketServer(
     WEBSOCKET_LOCAL_ADDRESS, int(WEBSOCKET_PORT), server_manager
 )
@@ -35,7 +50,17 @@ socket_thread.daemon = True
 socket_thread.start()
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    print(f"loaded user with id: {user_id}")
+    if user_id != "admin":
+        return admin_user
+    else:
+        return admin_user
+
+
 @app.route("/")
+@login_required
 def index():
     server_manager.apply_properties()
     start_server_form = StartServerForm()
@@ -124,6 +149,7 @@ def connected_players():
 
 
 @app.route("/start-server", methods=["POST"])
+@login_required
 def start_server():
     if server_manager.is_server_busy or server_manager.is_server_running:
         return redirect("/")
@@ -135,6 +161,7 @@ def start_server():
 
 
 @app.route("/stop-server", methods=["POST"])
+@login_required
 def stop_server():
     if server_manager.is_server_busy or not server_manager.is_server_running:
         return redirect("/")
@@ -145,6 +172,7 @@ def stop_server():
 
 
 @app.route("/restart-server", methods=["POST"])
+@login_required
 def restart_server():
     if server_manager.is_server_busy:
         return redirect("/")
@@ -155,6 +183,7 @@ def restart_server():
 
 
 @app.route("/update-server", methods=["POST"])
+@login_required
 def update_server():
     if server_manager.is_server_busy:
         return redirect("/")
@@ -166,6 +195,7 @@ def update_server():
 
 
 @app.route("/send-command", methods=["POST"])
+@login_required
 def send_command():
     form = SendCommandForm()
 
@@ -183,6 +213,7 @@ def send_command():
 
 
 @app.route("/change-level", methods=["POST"])
+@login_required
 def change_level():
     levels = server_manager.get_levels()
     current = server_manager.get_current_level()
@@ -202,6 +233,7 @@ def change_level():
 
 
 @app.route("/upload-level", methods=["POST"])
+@login_required
 def upload_level():
     form = LevelUploadForm()
     if server_manager.is_server_busy:
@@ -272,6 +304,7 @@ def upload_level():
 
 
 @app.route("/kick", methods=["POST"])
+@login_required
 def kick():
     form = KickUserForm()
 
@@ -288,3 +321,17 @@ def kick():
 #     server_manager.install_server()
 # except:
 #     print("Failed to download/unzip file")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    login_form = LoginForm()
+
+    if login_form.validate_on_submit():
+        print("form validated")
+        if login_form.password_field.data == ADMIN_PASSWORD:
+            admin_user.is_authenticated = True
+            login_status = login_user(admin_user, remember=True)
+            return redirect("/")
+
+    return render_template("login.html", form=login_form)
