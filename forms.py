@@ -7,7 +7,10 @@ from werkzeug.utils import secure_filename
 
 
 class LoginForm(FlaskForm):
-    password_field = PasswordField("Password", render_kw={"class": "form-control"})
+    password_field = PasswordField(
+        "Password",
+        render_kw={"class": "form-control", "placeholder": "Enter the passcode..."},
+    )
     password_submit_btn = SubmitField("Enter", render_kw={"class": "form-control"})
 
 
