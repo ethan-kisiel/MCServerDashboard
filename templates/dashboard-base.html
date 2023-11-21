@@ -1,0 +1,17 @@
+
+{% extends "base.html" %}
+    {% block content %}
+        {% block dashboard %}
+        <ul class="nav justify-content-center">
+            <li class="nav-item">
+              <a class="nav-lin {% if page == 'dashboard' %}active{% endif %}" aria-current="page" href="#">Active</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Link</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Link</a>
+            </li>
+        </ul>
+        {% endblock dashboard %}
+    {% endblock content %}

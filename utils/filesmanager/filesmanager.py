@@ -93,12 +93,14 @@ class FilesManager:
 
         # Close the browser when done
 
-    def unzip_file(self, file_dir: str, zip_file: str, extract_dir: str):
+    def unzip_file(
+        self, file_dir: str, zip_file: str, extract_dir: str, extension: str
+    ):
         """
         Unzips file at location: zip_file to directory: extract_dir
         """
         try:
-            with zipfile.ZipFile(f"{file_dir}/{zip_file}.zip", "r") as zip_file:
+            with zipfile.ZipFile(f"{file_dir}/{zip_file}{extension}", "r") as zip_file:
                 zip_file.extractall(extract_dir)
 
             return 0

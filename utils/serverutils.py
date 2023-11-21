@@ -226,7 +226,9 @@ class ServerManager:
 
             file_name = filename.split(file_extension)[0]
 
-            self.files_manager.unzip_file("temp", file_name, f"temp/{file_name}")
+            self.files_manager.unzip_file(
+                "temp", file_name, f"temp/{file_name}", extension=file_extension
+            )
 
             self.files_manager.transfer_folder(
                 f"temp/{file_name}", f"bedrock-server/worlds/{file_name}"

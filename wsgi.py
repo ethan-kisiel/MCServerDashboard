@@ -52,7 +52,6 @@ socket_thread.start()
 
 @login_manager.user_loader
 def load_user(user_id):
-    print(f"loaded user with id: {user_id}")
     if user_id != "admin":
         return admin_user
     else:
